@@ -1,4 +1,9 @@
-QWidget#MainWindow {
+QMainWindow#MainWindow {
+    background-color: transparent;
+    border: none;
+}
+
+QWidget#MainContainer {
     background-color: #141619;
     border: 1px solid #2A2F3A;
     border-radius: 12px;

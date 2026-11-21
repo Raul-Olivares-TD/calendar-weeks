@@ -42,6 +42,18 @@ class CalendarWindowTests(unittest.TestCase):
         self.app.processEvents()
 
         self.assertTrue(window.windowFlags() & Qt.WindowType.FramelessWindowHint)
+        self.assertTrue(window.testAttribute(Qt.WidgetAttribute.WA_TranslucentBackground))
+        main_container = window.centralWidget()
+        self.assertEqual(main_container.objectName(), "MainContainer")
+        self.assertTrue(
+            main_container.testAttribute(Qt.WidgetAttribute.WA_StyledBackground)
+        )
+        rendered = window.grab().toImage()
+        self.assertEqual(rendered.pixelColor(0, 0).alpha(), 0)
+        self.assertEqual(
+            rendered.pixelColor(rendered.width() // 2, rendered.height() // 2).alpha(),
+            255,
+        )
         self.assertFalse(window.windowIcon().isNull())
         self.assertEqual(window.week_caption_label.text(), "WEEK")
         window_icon = window.findChild(QLabel, "WindowIcon")
@@ -56,7 +68,7 @@ class CalendarWindowTests(unittest.TestCase):
         today_button = window.findChild(QPushButton, "TodayButton")
         self.assertIsNotNone(today_button)
         self.assertFalse(today_button.icon().isNull())
-        self.assertEqual(today_button.iconSize(), QSize(20, 20))
+        self.assertEqual(today_button.iconSize(), QSize(16, 16))
 
         window.calendar.setSelectedDate(QDate(2021, 1, 1))
         self.app.processEvents()

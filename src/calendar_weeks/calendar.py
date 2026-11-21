@@ -105,6 +105,7 @@ class TitleBar(QWidget):
 class CalendarWindow(QMainWindow):
     def __init__(self) -> None:
         super().__init__()
+        self.setAttribute(Qt.WidgetAttribute.WA_TranslucentBackground, True)
         self.setWindowFlags(Qt.WindowType.FramelessWindowHint | Qt.WindowType.Window)
         self.setObjectName("MainWindow")
         self.setWindowTitle("Calendar Weeks")
@@ -177,6 +178,8 @@ class CalendarWindow(QMainWindow):
         layout.addWidget(self.calendar)
 
         container = QWidget()
+        container.setObjectName("MainContainer")
+        container.setAttribute(Qt.WidgetAttribute.WA_StyledBackground, True)
         container.setLayout(layout)
         self.setCentralWidget(container)
         self.update_date_display()
@@ -235,6 +238,18 @@ def main() -> int:
     tray_icon = QSystemTrayIcon(app_icon, app)
     tray_icon.setToolTip("Calendar Weeks")
 
+    def on_tray_activated(reason: QSystemTrayIcon.ActivationReason) -> None:
+        if reason in (
+            QSystemTrayIcon.ActivationReason.Trigger,
+            QSystemTrayIcon.ActivationReason.DoubleClick,
+        ):
+            if window.isVisible():
+                window.hide_to_tray()
+            else:
+                window.show_at_bottom_right()
+
+    tray_icon.activated.connect(on_tray_activated)
+
     menu = QMenu()
     open_action = QAction("Open", menu)
     open_action.triggered.connect(window.show_at_bottom_right)
@@ -246,6 +261,10 @@ def main() -> int:
 
     tray_icon.setContextMenu(menu)
     tray_icon.show()
+
+    if "--startup" not in sys.argv and "--tray" not in sys.argv:
+        window.show_at_bottom_right()
+
     return app.exec()
 
 
